@@ -11,21 +11,15 @@ app.use(cors())
 app.get('/todo_list', async(req, res) =>{
     let db = await connect();
     let result = await db.collection("todo_list").find({}).toArray();
-    console.log
     res.json(result)
 })
 
-app.get('/done_list', (req, res) =>{
-    let data = [
-        {title: "done prvi"},
-        {title: "done drugi"},
-        {title: "done treci"},
-        {title: "done cetvrti"},
-        {title: "done peti"}
-    ]
-    res.json(data)
+app.get('/api/task/get_one/:id', async(req, res)=>{
+    let db = await connect();
+    let id = new mongo.ObjectId(req.params.id);
+    let results = await db.collection("todo_list").find({_id: id}).toArray();
+    res.json(results[0]);
 })
-
 app.post('/add_task', async(req, res) =>{
     let db = await connect();
     let data = req.body;
