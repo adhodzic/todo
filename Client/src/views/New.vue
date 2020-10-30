@@ -1,15 +1,7 @@
 <template>
 <div class="new">
     <div class="main">
-        <div class="calendar">
-            <div :key="rows" class="weeks" v-for="rows in 5">
-                <div v-if="days[(rows-1)*7+(cols-1)]" :key="cols" class="days" v-for="cols in 7">
-                    <div class="day">
-                        {{days[(rows-1)*7+(cols-1)]}}
-                    </div>
-                </div>
-            </div>
-        </div>
+        <calendar @dayPressed="getDay" :days="days" :currentDay="this.currentDay"></calendar>
         <div class=" todo">
         </div>
     </div>
@@ -17,17 +9,35 @@
 </template>
 
 <script>
+import Calendar from '../components/Calendar'
 export default {
+    components:{
+        'calendar': Calendar
+    },
     data() {
         return {
-            days: []
+            days: null,
+            currentDay: localStorage.getItem('day')
         }
     },
-    created() {
-        for (let i = 0; i < 31; i++) {
-            this.days[i] = i + 1;
+    methods: {
+        getDay (day) {
+           console.log(day);
+        },
+        getDayInMonth(month, year){
+            return new Date(year, month, 0).getDate();
         }
-        console.log(this.days)
+    },
+    mounted() {
+        
+    },
+    created() {
+        localStorage.setItem('date', new Date().toISOString().slice(0,10) );
+        let arr = localStorage.getItem('date').split("-")
+        localStorage.setItem('year', arr[0]);
+        localStorage.setItem('month', arr[1] );
+        localStorage.setItem('day', arr[2] );
+        this.days = this.getDayInMonth(arr[1], arr[0])
     }
 }
 </script>
@@ -38,41 +48,5 @@ export default {
     flex-direction: row;
 }
 
-.calendar {
-    margin-left: 20px;
-}
 
-.weeks {
-    display: flex;
-    width: 21rem;
-    flex-direction: row;
-}
-
-.days {
-    display: block;
-    padding-top: auto;
-    margin: 1px;
-    color: snow;
-    background: slategray;
-    width: 3rem;
-    height: 3rem;
-    transition: box-shadow .6s, transform .6s;
-}
-
-.day {
-    width: inherit;
-    height: inherit;
-    text-align: center;
-    vertical-align: middle;
-    line-height: 3rem;
-    font-size: 20px;
-}
-
-.days:hover {
-    cursor: pointer;
-    background: lightgray;
-    color: black;
-    box-shadow: 5px 5px 15px;
-    transform: translate(-5px, -5px);
-}
 </style>
