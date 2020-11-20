@@ -22,10 +22,12 @@
     </div>
     <hr />
     <div class="main">
-        <div :key="rows" class="weeks" v-for="rows in 5">
-            <button v-if="(rows-1)*7+(cols-1) < numOfDays" :value="(rows-1)*7+(cols-1)" :key="cols" @click="dayPressed((rows-1)*7+(cols-1)+1)" class="days" v-for="cols in 7">
-                {{(rows-1)*7+(cols-1)+1}}
-            </button>
+        <div :key="row" class="weeks" v-for="row in getNumOfWeeks()">
+            <div class="cols" :key="col" v-for="col in 7">
+                <button v-if="getDayIndex(row,col) < numOfDays" :value="getDayIndex(row,col)" @click="dayPressed(getDayIndex(row,col)+1)" class="days">
+                    {{getDayIndex(row,col)+1}}
+                </button>
+            </div>
         </div>
     </div>
 </div>
@@ -42,10 +44,30 @@ export default {
             month: parseInt(localStorage.getItem('month')),
             offsetMonth: parseInt(localStorage.getItem('month')),
             offsetYear: parseInt(localStorage.getItem('year')),
-            numOfDays: this.days
+            numOfDays: this.days,
         }
     },
     methods: {
+        getNumOfWeeks(){
+            let days = ((7+this.getDayOffset()) + this.numOfDays);
+            if(days%7 != 0){
+                console.log(Math.trunc(days/7)+1);
+                return Math.trunc(days/7)+1
+            }
+            return Math.trunc(days/7);
+        },
+        getDayIndex(row,col){
+            let index = (row-1)*7+(col-1) - (7+this.getDayOffset());
+            return index;
+        },
+        getDayOffset(){
+            return new Date(this.offsetYear, this.offsetMonth - 1, 1).getDay()-1;
+        },
+        focusCurrentDay(){
+            let d = this.currentDay - 1
+            let a = document.querySelectorAll(`button[value='${d}']`);
+            a[0].focus();
+        },
         dayPressed(day) {
             if (this.day != day) {
                 this.day = day
@@ -62,6 +84,9 @@ export default {
             }
             this.numOfDays = new Date(this.offsetYear, this.offsetMonth, 0).getDate();
             this.day = null
+            if(this.month == this.offsetMonth){
+                 this.focusCurrentDay();
+            }  
 
         },
         leftArrow() {
@@ -72,13 +97,14 @@ export default {
                 this.offsetMonth = this.offsetMonth - 1
             }
             this.numOfDays = new Date(this.offsetYear, this.offsetMonth, 0).getDate();
-            this.day = null
+            this.day = null;
+            if(this.month == this.offsetMonth){
+                 this.focusCurrentDay();
+            }
         }
     },
     mounted() {
-        let d = this.currentDay - 1
-        let a = document.querySelectorAll(`button[value='${d}']`);
-        a[0].focus();
+        this.focusCurrentDay();
     }
 }
 </script>
