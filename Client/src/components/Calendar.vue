@@ -22,9 +22,9 @@
     </div>
     <hr />
     <div class="main">
-        <div :key="row" class="weeks" v-for="row in getNumOfWeeks()">
-            <div class="cols" :key="col" v-for="col in 7">
-                <button v-if="getDayIndex(row,col) < numOfDays" :value="getDayIndex(row,col)" @click="dayPressed(getDayIndex(row,col)+1)" class="days">
+        <div :key="row" class="weeks" v-bind:class="[row < 2 ?right:'']" v-for="row in getNumOfWeeks()">
+            <div v-if="getDayIndex(row,col) < numOfDays && getDayIndex(row,col) > -1" class="cols" :key="col" v-for="col in 7">
+                <button :value="getDayIndex(row,col)" @click="dayPressed(getDayIndex(row,col)+1)" class="days">
                     {{getDayIndex(row,col)+1}}
                 </button>
             </div>
@@ -39,6 +39,7 @@ export default {
     props: ['days', 'currentDay'],
     data() {
         return {
+            right: 'floatRight',
             day: null,
             year: parseInt(localStorage.getItem('year')),
             month: parseInt(localStorage.getItem('month')),
@@ -48,22 +49,30 @@ export default {
         }
     },
     methods: {
+        isFirst(row){
+            return row == 0?true:false;
+        },
         getNumOfWeeks(){
             let days = ((7+this.getDayOffset()) + this.numOfDays);
             if(days%7 != 0){
-                console.log(Math.trunc(days/7)+1);
                 return Math.trunc(days/7)+1
             }
             return Math.trunc(days/7);
         },
         getDayIndex(row,col){
-            let index = (row-1)*7+(col-1) - (7+this.getDayOffset());
+            let index = 0;
+            if(this.getDayOffset()<0){
+                index = (row-1)*7+(col-1) - (7+this.getDayOffset());
+            }else{
+                index = (row-1)*7+(col-1) - (this.getDayOffset());
+            }
             return index;
         },
         getDayOffset(){
             return new Date(this.offsetYear, this.offsetMonth - 1, 1).getDay()-1;
         },
         focusCurrentDay(){
+            console.log(this.currentDay);
             let d = this.currentDay - 1
             let a = document.querySelectorAll(`button[value='${d}']`);
             a[0].focus();
@@ -83,11 +92,7 @@ export default {
                 this.offsetMonth = this.offsetMonth + 1
             }
             this.numOfDays = new Date(this.offsetYear, this.offsetMonth, 0).getDate();
-            this.day = null
-            if(this.month == this.offsetMonth){
-                 this.focusCurrentDay();
-            }  
-
+            this.day = null;
         },
         leftArrow() {
             if (this.offsetMonth == 1) {
@@ -98,9 +103,6 @@ export default {
             }
             this.numOfDays = new Date(this.offsetYear, this.offsetMonth, 0).getDate();
             this.day = null;
-            if(this.month == this.offsetMonth){
-                 this.focusCurrentDay();
-            }
         }
     },
     mounted() {
@@ -110,8 +112,15 @@ export default {
 </script>
 
 <style scoped>
+.floatRight {
+    justify-content: flex-end;
+    padding-right: 2px;
+}
 h2 {
     margin-bottom: 30px;
+    font-size: 50px;
+    font-weight: bolder;
+    color: rgb(66, 66, 66);
 }
 
 .header {
@@ -120,24 +129,29 @@ h2 {
 }
 
 hr {
-    font-weight: bold;
-    margin-bottom: 10px;
-    margin-top: 10px;
+    border: none;
+    background: rgb(255, 108, 108);
+    height: 2px;
+    margin-bottom: 0px;
+    margin-top: 0px;
 }
 
 .main {
     display: flex;
     flex-direction: column;
+    border-radius: 30px;
 }
 
 .names {
     width: 100%;
     height: 2rem;
+    background-color: rgb(66, 66, 66);
+    border-radius: 10px;
 }
 
 td {
     font-weight: bold;
-    color: rgb(129, 129, 129);
+    color: rgb(92, 92, 92);
     width: 5.1rem;
 }
 
@@ -145,6 +159,7 @@ td {
     display: flex;
     width: 36rem;
     flex-direction: row;
+    float: right;
 }
 
 .days {
@@ -152,12 +167,14 @@ td {
     padding-top: auto;
     margin: 1px;
     border: none;
-    color: snow;
-    background: slategray;
+    color:rgb(255, 108, 108);
+    background: rgb(92, 92, 92);
     font-size: 25px;
+    border-radius: 20px;
     width: 5rem;
     height: 5rem;
-    transition: box-shadow .6s, transform .6s;
+    
+    transition: font-size 2s box-shadow .2s, transform ease-in .6s, transform ease-out .1s;
 }
 
 .days:hover {
@@ -170,40 +187,52 @@ td {
 
 .days:focus {
     outline: none;
-    box-shadow: 5px 5px 10px 3px black;
-    transform: translate(-2px, -2px);
+    color:rgb(255, 108, 108);
+    font-size: 40px;
+    font-weight: bolder;
+    box-shadow: 5px 5px 10px black;
+     background:rgb(66, 66, 66);
+    transform: translate(-3px, -3px);
 }
 
 .calendar {
     margin-left: 20px;
+    padding: 10px;
+    border-radius: 20px;
+    background-color: rgb(255, 106, 106);
 }
 
 .date {
     display: flex;
+    background-color:  rgb(66, 66, 66);
+    border-radius: 10px;
     flex-direction: row;
+    align-items: center;
     justify-content: space-between;
     padding-left: 5rem;
     padding-right: 5rem;
 }
 
 .fas {
-    color: gray;
+    color: rgb(255, 108, 108);
 }
 
 .fas:hover {
     cursor: pointer;
-    color: darkslategray;
+    color: rgb(66, 66, 66);
 }
 
 h4 {
     font-size: 25px;
+    color: rgb(255, 108, 108);
+    align-items: center;
 
 }
 
 ul {
     display: flex;
     flex-direction: row;
-    height: inherit;
+    height: auto;
     list-style-type: none;
     margin: 0;
     padding: 0;
@@ -216,6 +245,8 @@ li {
     justify-content: center;
     align-items: center;
     font-size: 20px;
+    color:rgb(255, 108, 108);
+    font-weight: bolder;
     width: 5.1rem;
 }
 </style>
