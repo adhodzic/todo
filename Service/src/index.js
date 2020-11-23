@@ -8,9 +8,10 @@ app.use(express.json())
 app.use(cors())
 
 
-app.get('/todo_list', async(req, res) =>{
+app.get('/todo_list/:date', async(req, res) =>{
+    let data = req.params.date;
     let db = await connect();
-    let result = await db.collection("todo_list").find({}).toArray();
+    let result = await db.collection("todo_list").find({date: data}).toArray();
     res.json(result)
 })
 

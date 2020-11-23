@@ -2,28 +2,26 @@
 <div class="new">
     <div class="main">
         <calendar @dayPressed="getDay" :days="days" :currentDay="this.currentDay"></calendar>
-        <todo></todo>
     </div>
 </div>
 </template>
 
 <script>
 import Calendar from '../components/Calendar'
-import Todo from '../components/Todo'
 export default {
     components: {
-        'calendar': Calendar,
-        'todo': Todo
+        'calendar': Calendar
     },
     data() {
         return {
             days: null,
-            currentDay: localStorage.getItem('day')
+            currentDay: localStorage.getItem('day'),
+            setDay: null
         }
     },
     methods: {
         getDay(day) {
-            console.log(day);
+            this.setDay = day;
         },
         getDayInMonth(month, year) {
             return new Date(year, month, 0).getDate();
@@ -34,7 +32,7 @@ export default {
     },
     created() {
         localStorage.setItem('date', new Date().toISOString().slice(0, 10));
-        let arr = localStorage.getItem('date').split("-")
+        let arr = localStorage.getItem('date').split("-");
         localStorage.setItem('year', arr[0]);
         localStorage.setItem('month', arr[1]);
         localStorage.setItem('day', arr[2]);
@@ -47,6 +45,6 @@ export default {
 .main {
     display: flex;
     flex-direction: row;
-    justify-content: space-evenly;
+    justify-content: start;
 }
 </style>
